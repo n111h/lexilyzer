@@ -7,7 +7,6 @@
 
 ####  IMPORTS  #################################################################################################################
 
-from os import read
 from hasher import hasher as h
 
 ####  GLOBALS  #################################################################################################################
@@ -40,7 +39,7 @@ def fileOpener(filepath = "test.pl0"):                          ##  opens passed
         programString = f.read()
     return(programString)
 
-def stringCleaner(programString=''):                            ##  used in two pass lexilyzer to preprocess program string
+def stringCleaner(programString = ''):                          ##  used in two pass lexilyzer to preprocess program string
     print(programString)                                                                                       ##  DEBUGGING  ##
     programString += " EOF"                                     #   EOF (end of file) added to end of program string
     programString = programString.replace(';'," ; ")            #   whitespace added around token for python3 split()
@@ -62,6 +61,20 @@ def stringCleaner(programString=''):                            ##  used in two 
     print(programString)                                                                                       ##  DEBUGGING  ##
     return(programString)
 
+def preprocessor(programString = ''):                           ##  more robust replacement for stringCleaner()
+    print(programString)                                                                                       ##  DEBUGGING  ##
+    programString += " EOF"
+    programString = programString.replace('{'," { ").replace('}'," } ").replace('('," ( ").replace(')'," ) ")
+    programString = programString.replace('+'," + ").replace('-'," - ").replace('*'," * ").replace('/'," / ")
+    programString = programString.replace(';'," ; ").replace(','," , ").replace('.'," . ")
+    programString = programString.replace(':'," : ").replace(": ="," := ")
+    programString = programString.replace('<'," < ").replace("< >","<>").replace("< =","<=")
+    programString = programString.replace('>'," > ").replace("< >","<>").replace("> =",">=")
+    programString = programString.replace('='," = ").replace(": = ",":=").replace("< =","<=").replace("> =",">=")
+    programString = programString.replace("<>"," <> ").replace(">="," >= ").replace("<="," <= ").replace('\n'," EOL ")
+    print(programString)                                                                                       ##  DEBUGGING  ##
+    return(programString)
+
 def lexilyzerOnePass(programString = '', filepath = "test.pl0"):##  this lexilyzer will iterate over the program string by char
     if(not programString):
         programString = fileOpener(filepath)
@@ -69,18 +82,36 @@ def lexilyzerOnePass(programString = '', filepath = "test.pl0"):##  this lexilyz
     tokenString = []
 
     token = ''
+    tokenLen = 0
     endOfToken = False
+    tokenIsAlpha = False
+    tokenIsNumeric = False
+    tokenIsOperator = False
     for char in programString:
         if(endOfToken): 
             tokenString.append(token)
             token = ''
+            endOfToken,tokenIsAlpha,tokenIsNumeric,tokenIsOperator = False,False,False,False
+        if(not token):
+            if(char.isalpha()):
+                tokenIsAlpha = True
+                token += char
+                pass
+            elif(char.isnumeric()):
+                tokenIsNumeric = True
+                token += char
+                pass
+            elif(char in [';',',','.',':','{','}','+','-','*','/','(',')','=','<','>']):
+                tokenIsOperator = True
+                token += char
+                pass
     pass                                                        #   work in progress...
 
 def lexilyzerTwoPass(programString = '', filepath = "test.pl0"):##  this lexilyzer uses a string cleaning preprocess step
     if(not programString):                                      #   if there is no passed program string, a file will be opened
         programString = fileOpener(filepath)
 
-    programString = stringCleaner(programString)                #   adds whitespace to program string for python3 split()
+    programString = preprocessor(programString)                 #   adds whitespace to program string for python3 split()
 
     programTokens = programString.split()                       #   splits program string into tokens using arbitary whitespace
     tokenString = []
