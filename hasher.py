@@ -3,17 +3,17 @@
 #  Noah Olmstead Harvey
 #  04102021
 #
-#  lexical analyzer for pl0
+#  hashing function for pl0
 
 ####  IMPORTS  #################################################################################################################
 
-import matplotlib                                               #  for hash testing
-from matplotlib import pyplot as plt                            #  for hash testing
-import seaborn as sns                                           #  for hash testing
+import matplotlib                                               #   for hash testing
+from matplotlib import pyplot as plt                            #   for hash testing
+import seaborn as sns                                           #   for hash testing
 
 ####  GLOBALS  #################################################################################################################
 
-primes = [                                                      #  primes up to 1000
+primes = [                                                      #   primes up to 1000
       2,  3,  5,  7, 11, 13, 17, 19, 23, 29,
      31, 37, 41, 43, 47, 53, 59, 61, 67, 71,
      73, 79, 83, 89, 97,101,103,107,109,113,
@@ -33,59 +33,54 @@ primes = [                                                      #  primes up to 
     947,953,967,971,977,983,991,997
 ]
 
-largePrimes = [
+largePrimes = [                                                 #   the 30 largest primes <10000000
     9999463, 9999469, 9999481, 9999511, 9999533, 9999593, 9999601, 9999637, 9999653, 9999659,
     9999667, 9999677, 9999713, 9999739, 9999749, 9999761, 9999823, 9999863, 9999877, 9999883,
     9999889, 9999901, 9999907, 9999929, 9999931, 9999937, 9999943, 9999971, 9999973, 9999991
 ]
 
-firstPrimes = [primes[i] for i in range(30)]                    #  the first 30 primes (used in hasher0)
+firstPrimes = [primes[i] for i in range(30)]                    #   the first 30 primes
 
-primePrimes = [primes[(prime-1)] for prime in firstPrimes]      #  the first 30 prime/primes (used in hasher0)
+primePrimes = [primes[(prime-1)] for prime in firstPrimes]      #   the first 30 prime/primes (primes at prime indexes)
 
 ####  FUNCTIONS  ###############################################################################################################
 
-def hasher(identifier="testString", factor="primePrimes", modulo=499):
+def hasher(identifier="testString", factor="primePrimes", modulo=499):      #   hasher func - imported into lexilyzer
     hashCode = 0
     if(factor not in ["firstPrimes","primePrimes","index","number","largePrimes"]):
         print("!!!!  UNKNOWN FACTOR PASSED  !!!!")
         return(None)
-    for e,char in enumerate(identifier):                        #  for each char in the identifier and it's index
-        if(factor=="firstPrimes"): hashCode+=(ord(char)*firstPrimes[e])     #  multiply each char by the prime at index
-        elif(factor=="primePrimes"): hashCode+=(ord(char)*primePrimes[e])   #  multiply each char by the primePrime at index
-        elif(factor=="largePrimes"): hashCode+=(ord(char)*largePrimes[e])   #  multiply each char by the big prime at index
-        elif(factor=="index"): hashCode+=(ord(char)*e)          #  multiply each char by the index
-        elif(factor=="number"): hashCode+=(ord(char)*(e+1))     #  multiply each char by the index plus one
-    return(hashCode%modulo)                                     #  return the sum of those values modulo the symbol table size
+    for e,char in enumerate(identifier):                        #   for each char in the identifier and it's index
+        if(factor=="firstPrimes"): hashCode+=(ord(char)*firstPrimes[e])     #   multiply each char by the prime at index
+        elif(factor=="primePrimes"): hashCode+=(ord(char)*primePrimes[e])   #   multiply each char by the primePrime at index
+        elif(factor=="largePrimes"): hashCode+=(ord(char)*largePrimes[e])   #   multiply each char by the big prime at index
+        elif(factor=="index"): hashCode+=(ord(char)*e)          #   multiply each char by the index
+        elif(factor=="number"): hashCode+=(ord(char)*(e+1))     #   multiply each char by the index plus one
+    return(hashCode%modulo)                                     #   return the sum of those values modulo the symbol table size
 
 ####  MAIN  ####################################################################################################################
 
 def main():
     with open("engDict.txt", 'r') as f:
-        engDict = f.read().split()                              #  list of 370102 english words (<=30 chars)
+        engDict = f.read().split()                              #   list of 370102 english words (<=30 chars)
 
-    print("\nNumber of test words:",len(engDict),'\n')
-    print("Hashing Factors:")
-    print(f"{'index':<12}{'number':<12}{'firstPrimes':<12}{'primePrimes':<12}{'largePrimes':<12}")
-    for e,p in enumerate(firstPrimes):
-        print(f"{e:<12}{(e+1):<12}{p:<12}{primePrimes[e]:<12}{largePrimes[e]:<12}")
-    print()
-    print("'testString' hash:",hasher(),'\n')
+    print("\nNumber of test words:",len(engDict),'\n')                                                         ##  DEBUGGING  ##
+    print("Hashing Factors:")                                                                                  ##  DEBUGGING  ##
+    print(f"{'index':<12}{'number':<12}{'firstPrimes':<12}{'primePrimes':<12}{'largePrimes':<12}")             ##  DEBUGGING  ##
+    for e,p in enumerate(firstPrimes):                                                                         ##  DEBUGGING  ##
+        print(f"{e:<12}{(e+1):<12}{p:<12}{primePrimes[e]:<12}{largePrimes[e]:<12}")                            ##  DEBUGGING  ##
+    print()                                                                                                    ##  DEBUGGING  ##
+    print("'testString' hash:",hasher(),'\n')                                                                  ##  DEBUGGING  ##
 
-    firstPrimesHash = []
-    primePrimesHash = []
-    largePrimesHash = []
-    indexHash = []
-    numberHash = []
-    numberHash500 = []
+    firstPrimesHash,primePrimesHash,largePrimesHash,indexHash,numberHash,numberHash500 = [],[],[],[],[],[]     ##  DEBUGGING  ##
 
-    for word in engDict:
-        firstPrimesHash.append(hasher(word,"firstPrimes"))
-        primePrimesHash.append(hasher(word,"primePrimes"))
-        largePrimesHash.append(hasher(word,"largePrimes"))
-        indexHash.append(hasher(word,"index"))
-        numberHash.append(hasher(word,"number"))
-        numberHash500.append(hasher(word,"number",500))
+    for word in engDict:                                        #   test hashing functions against 37k words   ##  DEBUGGING  ##
+        firstPrimesHash.append(hasher(word,"firstPrimes"))      #   first 30 primes as factors                 ##  DEBUGGING  ##
+        primePrimesHash.append(hasher(word,"primePrimes"))      #   prime primes as factors                    ##  DEBUGGING  ##
+        largePrimesHash.append(hasher(word,"largePrimes"))      #   large primes as factors                    ##  DEBUGGING  ##
+        indexHash.append(hasher(word,"index"))                  #   char index value as factors                ##  DEBUGGING  ##
+        numberHash.append(hasher(word,"number"))                #   char number as factors                     ##  DEBUGGING  ##
+        numberHash500.append(hasher(word,"number",500))         #   char number as factors modulo not prime    ##  DEBUGGING  ##
 
     # plt.figure(figsize=(11,8.5))
     # sns.distplot(indexHash, color='r', label="index", bins=499, kde_kws={"shade":True,"bw_method":.01})

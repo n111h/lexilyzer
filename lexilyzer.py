@@ -23,7 +23,7 @@ tokens = {                                                      #  token table f
     '.':9,          '*':25,         '>':42,
     "if":10,        '/':26,         ">=":43,
     "then":11,      '(':27,         "<=":44,
-    "else":12,      ')':28,         "do":29,
+    "else":12,      ')':28,         "do":29,                    #   NOTE:  added "do":29 (not in documentation)
     "end_if":13,    "Real":30,
     "odd":14,       "Integer":31,
     ':':15,         "Boolean":32,
@@ -62,7 +62,7 @@ def stringCleaner(programString=''):                            ##  used in two 
     print(programString)                                                                                       ##  DEBUGGING  ##
     return(programString)
 
-def lexilyzerOnePass(programString = '', filepath = "test.5.14.pl0"):
+def lexilyzerOnePass(programString = '', filepath = "test.pl0"):##  this lexilyzer will iterate over the program string by char
     if(not programString):
         programString = fileOpener(filepath)
 
@@ -74,41 +74,39 @@ def lexilyzerOnePass(programString = '', filepath = "test.5.14.pl0"):
         if(endOfToken): 
             tokenString.append(token)
             token = ''
+    pass                                                        #   work in progress...
 
-
-    pass
-
-def lexilyzerTwoPass(programString = '', filepath = "test.5.14.pl0"):
-    if(not programString):
+def lexilyzerTwoPass(programString = '', filepath = "test.pl0"):##  this lexilyzer uses a string cleaning preprocess step
+    if(not programString):                                      #   if there is no passed program string, a file will be opened
         programString = fileOpener(filepath)
 
-    programString = stringCleaner(programString)
+    programString = stringCleaner(programString)                #   adds whitespace to program string for python3 split()
 
-    programTokens = programString.split()
+    programTokens = programString.split()                       #   splits program string into tokens using arbitary whitespace
     tokenString = []
 
-    for token in programTokens:
-        if(token in tokens):
-            tokenString.append(str(tokens[token]))
-        elif(token[0].isalpha()):
-            tokenString.append("0 "+str(h(token)))
+    for token in programTokens:                                 #   iterate through tokens
+        if(token in tokens):                                    #   if the token is in the token table
+            tokenString.append(str(tokens[token]))              #   add the string value of the looked up token to token string
+        elif(token[0].isalpha()):                               #   else if the token starts with an alpha char
+            tokenString.append("0 "+str(h(token)))              #   it is a symbol - hash the token and add it to token string
             symbolTable[h(token)].append(token)                                                                ##  DEBUGGING  ##
-        else:
-            tokenString.append("1 "+str(token))
+        else:                                                   #   else the token is a number
+            tokenString.append("1 "+str(token))                 #   add the number as a prefixed string to token string
     
-    return(programTokens,tokenString)
+    return(programTokens,tokenString)                           #   returns: tokens, transcribed (translated) tokens
 
-lexilyzer = lexilyzerTwoPass
+lexilyzer = lexilyzerTwoPass                                    #   sets lexilyzer() to the two pass version
 
 ####  MAIN  ####################################################################################################################
 
 def main():
-    tokenList,tokenStr = lexilyzer()
+    tokenList,tokenStr = lexilyzer()                            #   test with default file
 
-    for e,t in enumerate(tokenList): print(f"{e:<8}{t:<32}")
-    print()
-    for e,s in enumerate(symbolTable):
-        if(s): print(f"{e:<8}{','.join(s):<32}")
-    print('\n'," * ".join(tokenStr))
+    for e,t in enumerate(tokenList): print(f"{e:<8}{t:<32}")    #   prints each of the tokens                  ##  DEBUGGING  ##
+    print()                                                                                                    ##  DEBUGGING  ##
+    for e,s in enumerate(symbolTable):                          #   prints symbol table (check for collisions) ##  DEBUGGING  ##
+        if(s): print(f"{e:<8}{','.join(s):<32}")                                                               ##  DEBUGGING  ##
+    print('\n'," * ".join(tokenStr))                            #   final lexilyzer output                     ##  DEBUGGING  ##
 
 if(__name__=="__main__"): main()
